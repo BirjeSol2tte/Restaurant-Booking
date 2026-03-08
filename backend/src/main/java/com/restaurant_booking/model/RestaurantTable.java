@@ -12,20 +12,55 @@ public class RestaurantTable {
 
     private int capacity;
 
-    private int xPosition;
-    private int yPosition;
+    private Integer posX;
+    private Integer posY;
 
-    // --- getters/setters ---
+    private String tableLabel;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Enumerated(EnumType.STRING)
+    private Zone zone;
 
-    public int getCapacity() { return capacity; }
-    public void setCapacity(int capacity) { this.capacity = capacity; }
+    public Long getId() {
+        return id;
+    }
 
-    public int getXPosition() { return xPosition; }
-    public void setXPosition(int xPosition) { this.xPosition = xPosition; }
+    public int getCapacity() {
+        return capacity;
+    }
 
-    public int getYPosition() { return yPosition; }
-    public void setYPosition(int yPosition) { this.yPosition = yPosition; }
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public Integer getPosX() {
+        return posX;
+    }
+
+    public void setPosX(Integer posX) {
+        this.posX = posX;
+    }
+
+    public Integer getPosY() {
+        return posY;
+    }
+
+    public void setPosY(Integer posY) {
+        this.posY = posY;
+    }
+
+    public String getTableLabel() {
+        return tableLabel;
+    }
+
+    public void setTableLabel(String tableLabel) {
+        this.tableLabel = tableLabel;
+    }
+
+    public Zone getZone() {
+        return zone;
+    }
+
+    public void setZone(Zone zone) {
+        this.zone = zone;
+    }
 }

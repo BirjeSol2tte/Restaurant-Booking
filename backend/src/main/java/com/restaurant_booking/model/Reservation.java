@@ -20,21 +20,57 @@ public class Reservation {
 
     private boolean includesDishOfTheDay;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    private String dishName;
 
-    public Long getTableId() { return tableId; }
-    public void setTableId(Long tableId) { this.tableId = tableId; }
+    public Long getId() {
+        return id;
+    }
 
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public Long getTableId() {
+        return tableId;
+    }
 
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+    public void setTableId(Long tableId) {
+        this.tableId = tableId;
+    }
 
-    public String getReservationCode() { return reservationCode; }
-    public void setReservationCode(String reservationCode) { this.reservationCode = reservationCode; }
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
 
-    public boolean isIncludesDishOfTheDay() { return includesDishOfTheDay; }
-    public void setIncludesDishOfTheDay(boolean includesDishOfTheDay) { this.includesDishOfTheDay = includesDishOfTheDay; }
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getReservationCode() {
+        return reservationCode;
+    }
+
+    public void setReservationCode(String reservationCode) {
+        this.reservationCode = reservationCode;
+    }
+
+    public boolean isIncludesDishOfTheDay() {
+        return includesDishOfTheDay;
+    }
+
+    public void setIncludesDishOfTheDay(boolean includesDishOfTheDay) {
+        this.includesDishOfTheDay = includesDishOfTheDay;
+    }
+
+    public String getDishName() {
+        return dishName;
+    }
+
+    public void setDishName(String dishName) {
+        this.dishName = dishName;
+    }
 }

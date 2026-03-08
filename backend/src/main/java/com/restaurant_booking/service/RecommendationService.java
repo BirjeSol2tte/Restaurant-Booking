@@ -3,6 +3,7 @@ package com.restaurant_booking.service;
 import com.restaurant_booking.dto.RecommendationRequestDto;
 import com.restaurant_booking.dto.RecommendationResponseDto;
 import com.restaurant_booking.model.RestaurantTable;
+import com.restaurant_booking.model.Zone;
 import com.restaurant_booking.repository.ReservationRepository;
 import com.restaurant_booking.repository.RestaurantTableRepository;
 import org.springframework.http.HttpStatus;
@@ -43,9 +44,9 @@ public class RecommendationService {
         LocalDateTime end = start.plusHours(duration);
 
         List<RestaurantTable> candidates = tableRepository.findAll().stream()
-                // capacity filter
                 .filter(t -> t.getCapacity() >= request.getGroupSize())
-                // availability filter (no overlap)
+                .filter(t -> request.getZone() == null || request.getZone().isBlank()
+                        || t.getZone().name().equalsIgnoreCase(request.getZone()))
                 .filter(t -> reservationRepository.findOverlappingReservations(t.getId(), start, end).isEmpty())
                 .toList();
 
@@ -53,39 +54,64 @@ public class RecommendationService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No available tables for selected time.");
         }
 
-        // Pick best table:
-        // 1) smallest capacity that still fits (least wasted seats)
-        // 2) apply small preference boost using x/y heuristics (optional)
-        // 3) tie-breaker by id
         RestaurantTable best = candidates.stream()
-                .min(Comparator
-                        .comparingInt((RestaurantTable t) -> (t.getCapacity() - request.getGroupSize()))
-                        .thenComparingInt(t -> -preferenceScore(t, request))
-                        .thenComparingLong(RestaurantTable::getId)
-                )
+                .max(Comparator.comparingInt(t -> recommendationScore(t, request)))
                 .orElseThrow();
 
         RecommendationResponseDto response = new RecommendationResponseDto();
         response.setTableId(best.getId());
+        response.setTableLabel(best.getTableLabel());
         response.setCapacity(best.getCapacity());
+        response.setZone(best.getZone().name());
         response.setStartTime(start);
         response.setEndTime(end);
 
         return response;
     }
 
-    // Optional heuristic preferences (since we don’t have explicit "window/quiet" fields yet)
-    private int preferenceScore(RestaurantTable t, RecommendationRequestDto request) {
+    private int recommendationScore(RestaurantTable table, RecommendationRequestDto request) {
         int score = 0;
+        int groupSize = request.getGroupSize();
 
-        // Example heuristic: "nearWindow" prefers larger xPosition (right side)
-        if (Boolean.TRUE.equals(request.getNearWindow())) {
-            if (t.getXPosition() >= 300) score += 1;
+        // Better capacity fit = higher score
+        int wastedSeats = table.getCapacity() - groupSize;
+        score += Math.max(0, 30 - (wastedSeats * 4));
+
+        // Zone preference by group size
+        if (groupSize <= 2) {
+            if (table.getZone() == Zone.QUIET_AREA) score += 20;
+            if (table.getZone() == Zone.MAIN_HALL) score += 10;
+            if (table.getZone() == Zone.PARTY_ROOM) score -= 25;
+        } else if (groupSize <= 4) {
+            if (table.getZone() == Zone.MAIN_HALL) score += 18;
+            if (table.getZone() == Zone.QUIET_AREA) score += 12;
+            if (table.getZone() == Zone.PARTY_ROOM) score -= 20;
+        } else if (groupSize <= 8) {
+            if (table.getZone() == Zone.MAIN_HALL) score += 12;
+            if (table.getZone() == Zone.PRIVATE_ROOM) score += 18;
+            if (table.getZone() == Zone.QUIET_AREA) score -= 15;
+        } else {
+            if (table.getZone() == Zone.PARTY_ROOM) score += 30;
+            if (table.getZone() == Zone.PRIVATE_ROOM) score += 12;
+            if (table.getZone() == Zone.QUIET_AREA) score -= 30;
         }
 
-        // Example heuristic: "quietArea" prefers larger yPosition (bottom side)
-        if (Boolean.TRUE.equals(request.getQuietArea())) {
-            if (t.getYPosition() >= 250) score += 1;
+        // Explicit quiet-area preference
+        if (Boolean.TRUE.equals(request.getQuietArea()) && table.getZone() == Zone.QUIET_AREA) {
+            score += 20;
+        }
+
+        // Mild near-window heuristic
+        if (Boolean.TRUE.equals(request.getNearWindow())) {
+            if (table.getZone() == Zone.PATIO || table.getZone() == Zone.QUIET_AREA) {
+                score += 8;
+            }
+        }
+
+        // Mild boost for explicit zone choice
+        if (request.getZone() != null && !request.getZone().isBlank()
+                && table.getZone().name().equalsIgnoreCase(request.getZone())) {
+            score += 15;
         }
 
         return score;

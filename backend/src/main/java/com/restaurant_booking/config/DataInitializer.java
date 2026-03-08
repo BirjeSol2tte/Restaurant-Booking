@@ -1,43 +1,64 @@
 package com.restaurant_booking.config;
 
 import com.restaurant_booking.model.RestaurantTable;
+import com.restaurant_booking.model.Zone;
 import com.restaurant_booking.repository.RestaurantTableRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@Component
-public class DataInitializer implements CommandLineRunner {
+@Configuration
+public class DataInitializer {
 
-    private final RestaurantTableRepository tableRepository;
+    @Bean
+    CommandLineRunner initTables(RestaurantTableRepository tableRepository) {
+        return args -> {
+            if (tableRepository.count() == 0) {
+                List<RestaurantTable> tables = List.of(
 
-    public DataInitializer(RestaurantTableRepository tableRepository) {
-        this.tableRepository = tableRepository;
+                        // MAIN HALL
+                        createTable("H1", 2, 170, 140, Zone.MAIN_HALL),
+                        createTable("H2", 4, 270, 140, Zone.MAIN_HALL),
+                        createTable("H3", 4, 370, 140, Zone.MAIN_HALL),
+                        createTable("H4", 6, 220, 240, Zone.MAIN_HALL),
+                        createTable("H5", 6, 340, 240, Zone.MAIN_HALL),
+
+                        // QUIET AREA
+                        createTable("Q1", 2, 620, 110, Zone.QUIET_AREA),
+                        createTable("Q2", 2, 700, 110, Zone.QUIET_AREA),
+                        createTable("Q3", 4, 660, 200, Zone.QUIET_AREA),
+
+                        // PATIO
+                        createTable("P1", 2, 140, 430, Zone.PATIO),
+                        createTable("P2", 4, 250, 430, Zone.PATIO),
+                        createTable("P3", 4, 360, 430, Zone.PATIO),
+                        createTable("P4", 6, 470, 430, Zone.PATIO),
+
+                        // PARTY ROOM
+                        createTable("PR1", 10, 640, 430, Zone.PARTY_ROOM),
+                        createTable("PR2", 12, 760, 430, Zone.PARTY_ROOM),
+
+                        // PRIVATE ROOM
+                        createTable("PV1", 8, 640, 300, Zone.PRIVATE_ROOM),
+                        createTable("PV2", 10, 760, 300, Zone.PRIVATE_ROOM)
+                );
+
+                tableRepository.saveAll(tables);
+
+                System.out.println("Restaurant tables initialized.");
+            }
+        };
     }
 
-    @Override
-    public void run(String... args) {
-        if (tableRepository.count() > 0) return;
-
-        List<RestaurantTable> tables = List.of(
-                create(2, 80, 80),
-                create(2, 200, 80),
-                create(4, 80, 180),
-                create(4, 200, 180),
-                create(6, 80, 300),
-                create(6, 240, 300),
-                create(8, 420, 120)
-        );
-
-        tableRepository.saveAll(tables);
-    }
-
-    private RestaurantTable create(int capacity, int x, int y) {
+    private RestaurantTable createTable(String label, int capacity, int x, int y, Zone zone) {
         RestaurantTable t = new RestaurantTable();
+        t.setTableLabel(label);
         t.setCapacity(capacity);
-        t.setXPosition(x);
-        t.setYPosition(y);
+        t.setPosX(x);
+        t.setPosY(y);
+        t.setZone(zone);
         return t;
     }
 }

@@ -6,6 +6,8 @@ public class RecommendationResponseDto {
 
     private Long tableId;
     private int capacity;
+    private String zone;
+    private String tableLabel;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -24,6 +26,22 @@ public class RecommendationResponseDto {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public String getZone() {
+        return zone;
+    }
+
+    public void setZone(String zone) {
+        this.zone = zone;
+    }
+
+    public String getTableLabel() {
+        return tableLabel;
+    }
+
+    public void setTableLabel(String tableLabel) {
+        this.tableLabel = tableLabel;
     }
 
     public LocalDateTime getStartTime() {

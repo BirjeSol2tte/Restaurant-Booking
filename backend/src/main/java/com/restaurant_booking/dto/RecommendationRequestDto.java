@@ -5,12 +5,13 @@ import java.time.LocalDateTime;
 public class RecommendationRequestDto {
 
     private LocalDateTime startTime;
-    private Integer durationHours; // default 2 in service
+    private Integer durationHours;
     private int groupSize;
 
-    // Preferences (keep simple for now, can expand later)
     private Boolean nearWindow;
     private Boolean quietArea;
+
+    private String zone;
 
     public LocalDateTime getStartTime() {
         return startTime;
@@ -50,5 +51,13 @@ public class RecommendationRequestDto {
 
     public void setQuietArea(Boolean quietArea) {
         this.quietArea = quietArea;
+    }
+
+    public String getZone() {
+        return zone;
+    }
+
+    public void setZone(String zone) {
+        this.zone = zone;
     }
 }
